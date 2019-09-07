@@ -43,6 +43,7 @@ export default class HomeScreen extends React.Component<
 
   render() {
       const { search } = this.state;
+
       return (
         <SearchBar
           placeholder="Search for food"
