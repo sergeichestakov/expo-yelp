@@ -8,7 +8,11 @@
     "eject": "expo eject"
   },
   "dependencies": {
+    "@apollo/react-hooks": "^3.1.0",
+    "apollo-boost": "^0.4.4",
+    "apollo-link": "^1.2.13",
     "expo": "^34.0.1",
+    "graphql": "^14.5.4",
     "react": "16.8.3",
     "react-dom": "^16.8.6",
     "react-native": "https://github.com/expo/react-native/archive/sdk-34.0.0.tar.gz",
