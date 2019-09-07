@@ -7,6 +7,10 @@ import { NavigationScreenProp } from 'react-navigation';
 import { SearchBar } from 'react-native-elements';
 
 const API_ENDPOINT: string = 'https://api.yelp.com/v3/graphql';
+const COLORS = {
+  red: '#d32323',
+  grey: '#919191',
+}
 
 export default class HomeScreen extends React.Component<
   { // props
@@ -16,6 +20,16 @@ export default class HomeScreen extends React.Component<
     client: ApolloClient<unknown>,
     search: string
   }> {
+  static navigationOptions = {
+    headerStyle: {
+      height: 0,
+      backgroundColor: COLORS.red,
+    },
+    headerTintColor: '#fff',
+    headerTitleStyle: {
+      fontWeight: 'bold',
+    },
+  };
   constructor(props) {
     super(props);
 
@@ -31,7 +45,7 @@ export default class HomeScreen extends React.Component<
     };
   }
 
-  updateSearch = search => {
+  updateSearch = (search: string) => {
     this.setState({ search });
   };
 
@@ -45,13 +59,37 @@ export default class HomeScreen extends React.Component<
       const { search } = this.state;
 
       return (
-        <SearchBar
-          placeholder="Search for food"
-          onChangeText={this.updateSearch}
-          lightTheme
-          onSubmitEditing={() => this.search(search)}
-          value={search}
-        />
+        <View>
+          <View style={styles.searchBarView}>
+            <SearchBar
+              placeholder="Search for burgers, delivery, barbeque..."
+              onChangeText={this.updateSearch}
+              containerStyle={styles.containerStyle}
+              inputStyle={styles.inputStyle}
+              platform="android"
+              lightTheme
+              onSubmitEditing={() => this.search(search)}
+              value={search}
+            />
+          </View>
+        </View>
       );
     }
 }
+
+const styles = StyleSheet.create({
+  searchBarView: {
+    paddingLeft: 15,
+    paddingRight: 15,
+    paddingBottom: 10,
+    paddingTop: 10,
+    backgroundColor: COLORS.red,
+  },
+  containerStyle: {
+    height: 50,
+  },
+  inputStyle: {
+    color: COLORS.grey,
+    fontSize: 16,
+  }
+})
