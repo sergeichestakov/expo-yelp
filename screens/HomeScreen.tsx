@@ -1,12 +1,21 @@
 import React from 'react';
 import { StyleSheet, Text, View } from 'react-native';
 import ApolloClient from 'apollo-boost';
-import { gql } from "apollo-boost";
 import { YELP_API_KEY } from 'react-native-dotenv'
+import { NavigationScreenProp } from 'react-navigation';
+
+import { SearchBar } from 'react-native-elements';
 
 const API_ENDPOINT: string = 'https://api.yelp.com/v3/graphql';
 
-export default class HomeScreen extends React.Component<{}, { client: ApolloClient<unknown> }> {
+export default class HomeScreen extends React.Component<
+  { // props
+    navigation: NavigationScreenProp<any,any>
+  },
+  { // state
+    client: ApolloClient<unknown>,
+    search: string
+  }> {
   constructor(props) {
     super(props);
 
@@ -18,28 +27,30 @@ export default class HomeScreen extends React.Component<{}, { client: ApolloClie
     });
     this.state = {
       client: client,
+      search: '',
     };
   }
+
+  updateSearch = search => {
+    this.setState({ search });
+  };
+
+  search = (value: string) => {
+    this.setState({ search: "" })
+    const { client } = this.state;
+    this.props.navigation.navigate('Search', { client, value });
+  };
+
   render() {
-    this.state.client
-      .query({
-        query: gql`
-          {
-            business(id: "garaje-san-francisco") {
-              name
-              id
-              alias
-              rating
-              url
-            }
-          }
-        `
-      })
-      .then(result => console.log(result));
+      const { search } = this.state;
       return (
-        <View style={{ flex: 1, alignItems: 'center', justifyContent: 'center' }}>
-          <Text>Home Screen</Text>
-        </View>
+        <SearchBar
+          placeholder="Search for food"
+          onChangeText={this.updateSearch}
+          lightTheme
+          onSubmitEditing={() => this.search(search)}
+          value={search}
+        />
       );
     }
 }
