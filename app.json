@@ -14,8 +14,8 @@
     "icon": "./assets/yelp.png",
     "splash": {
       "image": "./assets/splash.png",
-      "resizeMode": "contain",
-      "backgroundColor": "#ffffff"
+      "resizeMode": "cover",
+      "backgroundColor": "#d32323"
     },
     "updates": {
       "fallbackToCacheTimeout": 0
