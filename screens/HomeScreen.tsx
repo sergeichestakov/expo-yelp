@@ -1,107 +1,14 @@
 import React from 'react';
-import { StyleSheet, Text, View, FlatList, Platform, TouchableNativeFeedback, TouchableHighlight } from 'react-native';
-import ApolloClient, { gql } from 'apollo-boost';
-import { YELP_API_KEY } from 'react-native-dotenv'
+import { StyleSheet, View, FlatList } from 'react-native';
 import { NavigationScreenProp } from 'react-navigation';
-
 import { SearchBar } from 'react-native-elements';
+import { YELP_API_KEY } from 'react-native-dotenv';
+import ApolloClient from 'apollo-boost';
 
-const POPULAR_CATEGORIES = [
-  {
-    "alias": "",
-    "title": "Popular Categories",
-  },
-  {
-    "alias": "restaurants",
-    "title": "Restaurants"
-  },
-  {
-    "alias": "bars",
-    "title": "Bars"
-  },
-  {
-    "alias": "nightlife",
-    "title": "Nightlife"
-  },
-  {
-    "alias": "coffee",
-    "title": "Coffee & Tea"
-  },
-  {
-    "alias": "gasstations",
-    "title": "Gas Stations"
-  },
-  {
-    "alias": "drugstores",
-    "title": "Drugstores"
-  },
-  {
-    "alias": "shopping",
-    "title": "Shopping"
-  },
-  {
-    "alias": "everything",
-    "title": "Everything"
-  },
-  {
-    "alias": "",
-    "title": "All Categories",
-  },
-]
-
-class ListItem extends React.Component<
-  {
-    alias: string,
-    title: string,
-    client: ApolloClient<unknown>,
-    navigation: NavigationScreenProp<any,any>
-  }> {
-  onPress = () => {
-    const { alias, client, title } = this.props;
-    if (alias) {
-      this.props.navigation.navigate('Search', { category: alias, client, categoryTitle: title })
-    }
-  };
-
-  renderView = () => {
-    const { alias, title } = this.props;
-    return (
-      <View>
-        <Text style={alias.length > 0 ? styles.item: styles.headerText}>{title}</Text>
-      </View>
-    );
-  };
-
-  render() {
-    return Platform.select({
-      android: (
-        <TouchableNativeFeedback
-            onPress={this.onPress}
-            background={TouchableNativeFeedback.Ripple('grey')}
-          >
-          {this.renderView()}
-        </TouchableNativeFeedback>
-      ),
-      default: (
-        <TouchableHighlight onPress={this.onPress} underlayColor="lightgray">
-          {this.renderView()}
-        </TouchableHighlight>
-      ),
-    });
-  }
-}
-
-const API_ENDPOINT: string = 'https://api.yelp.com/v3/graphql';
-const COLORS = {
-  red: '#d32323',
-  grey: '#919191',
-  lightgrey: '#cccccc',
-}
-
-type Category = {
-  alias: string,
-  title: string,
-}
+import ListItem from '../components/ListItem';
+import { QUERY_CATEGORIES } from '../api/Query';
+import { API_ENDPOINT, COLORS, POPULAR_CATEGORIES } from '../api/Constants';
+import { Category } from '../api/Types';
 
 export default class HomeScreen extends React.Component<
   { // props
@@ -110,7 +17,7 @@ export default class HomeScreen extends React.Component<
   { // state
     client: ApolloClient<unknown>,
     search: string,
-    location: string | null,
+    location: string,
     categories: Category[]
   }> {
   static navigationOptions = {
@@ -135,7 +42,7 @@ export default class HomeScreen extends React.Component<
     this.state = {
       client: client,
       search: '',
-      location: null,
+      location: '',
       categories: POPULAR_CATEGORIES,
     };
   }
@@ -160,17 +67,9 @@ export default class HomeScreen extends React.Component<
 
   getAllCategories = () => {
     const { client } = this.state;
-    const query = gql`{
-      categories{
-        category {
-          alias
-          title
-        }
-      }
-    }`
 
     client
-    .query({ query })
+    .query({ query: QUERY_CATEGORIES })
     .then(results => {
       const categories = results.data.categories.category;
       

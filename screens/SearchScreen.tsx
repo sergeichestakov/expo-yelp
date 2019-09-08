@@ -3,33 +3,11 @@ import { ActivityIndicator, StyleSheet, Text, View, Button, ScrollView, Image, D
 import { Card, Icon } from 'react-native-elements'
 import { NavigationScreenProp } from 'react-navigation';
 import MapView, { Marker } from 'react-native-maps';
-import { gql } from "apollo-boost";
+import ApolloClient from "apollo-boost";
 
-type Location = {
-  address1: string,
-  city: string,
-  state: string,
-}
-
-type Coordinates = {
-  longitude: number,
-  latitude: number,
-}
-
-type Business = {
-  name: string,
-  rating: number,
-  review_count: number,
-  distance: number,
-  photos: string,
-  url: string,
-  location: Location,
-  coordinates: Coordinates,
-}
-
-const COLORS = {
-  red: '#d32323',
-}
+import { COLORS, DEFAULT_DELTA } from '../api/Constants';
+import { QUERY_BUSINESSES_BY_TERM, QUERY_BUSINESSES_BY_CATEGORY } from '../api/Query';
+import { Business, Coordinates } from '../api/Types';
 
 export default class SearchScreen extends React.Component<
   { // props
@@ -47,8 +25,9 @@ export default class SearchScreen extends React.Component<
     isMapReady: boolean,
   }> {
   static navigationOptions = ({ navigation }) => {
+    const title = `Searching for ${navigation.getParam('value') || navigation.getParam('categoryTitle')}`
     return {
-      headerTitle: <Text style={styles.headerTitle}>Searching for {navigation.getParam('value') || navigation.getParam('categoryTitle')}</Text>,
+      headerTitle: <Text style={styles.headerTitle}>{title}</Text>,
       headerStyle: {
         backgroundColor: COLORS.red,
         color: 'white',
@@ -81,57 +60,33 @@ export default class SearchScreen extends React.Component<
   async componentWillMount() {
     const { longitude, latitude } = await this.getCurrentPosition();
 
-    this.setState({region: { longitude, latitude, latitudeDelta: 0.0922, longitudeDelta: 0.0421 }})
+    this.setState({region: { longitude, latitude, ...DEFAULT_DELTA }})
 
     const { navigation } = this.props;
-    const location = navigation.getParam('location', "");
-    const userInputtedLocation = location && location.length > 0;
-    const category = navigation.getParam('category', null);
-    const client = navigation.getParam('client');
-    const value: string = navigation.getParam('value');
+    const location: string = navigation.getParam('location', "");
+    const category: string | null = navigation.getParam('category', null);
+    const client: ApolloClient<unknown> = navigation.getParam('client');
+    const term: string = navigation.getParam('value');
 
-    const locationString = userInputtedLocation ?
-      `location: "${location}"` :
-      `longitude: ${longitude}\nlatitude: ${latitude}`;
+    const query = category === null ? QUERY_BUSINESSES_BY_TERM : QUERY_BUSINESSES_BY_CATEGORY;
 
-    const search = category === null ? `term: "${value}"` : `categories: "${category}"`;
-
-    const query = gql`
-    {
-      search(${search},
-            ${locationString}) {
-        total
-        business {
-            name
-            rating
-            review_count
-            distance
-            photos
-            url
-            location {
-              address1
-              city
-              state
-            }
-            coordinates {
-              latitude
-              longitude
-            }
-        }
-      }
+    const variables = {
+      term,
+      location,
+      longitude,
+      latitude,
     }
-    `;
 
     client
-    .query({ query })
+    .query({ query, variables })
     .then(results => {
       const businesses = results.data.search.business;
       this.setState({results: businesses});
 
       // If the user inputted the location, center the map around the first result
-      if (userInputtedLocation) {
+      if (location.length) {
         const { coordinates } = businesses[0];
-        this.setState({region: { longitude: coordinates.longitude, latitude: coordinates.latitude, latitudeDelta: 0.0922, longitudeDelta: 0.0421 }})
+        this.setState({region: { longitude: coordinates.longitude, latitude: coordinates.latitude, ...DEFAULT_DELTA }})
       }
     });
   }
