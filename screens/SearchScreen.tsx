@@ -51,18 +51,17 @@ export default class SearchScreen extends React.Component<
   }
 
   async componentWillMount() {
-    const { longitude, latitude } = await this.getCurrentPosition();
-
-    this.setState({region: { longitude, latitude, ...DEFAULT_DELTA }})
-
     const { navigation } = this.props;
+
+    const { longitude, latitude } : Coordinates = navigation.getParam('coordinates');
     const location: string = navigation.getParam('location', "");
     const category: string | null = navigation.getParam('category', null);
     const client: ApolloClient<unknown> = navigation.getParam('client');
     const term: string = navigation.getParam('value');
 
-    const query = category === null ? QUERY_BUSINESSES_BY_TERM : QUERY_BUSINESSES_BY_CATEGORY;
+    this.setState({region: { longitude, latitude, ...DEFAULT_DELTA }})
 
+    const query = category === null ? QUERY_BUSINESSES_BY_TERM : QUERY_BUSINESSES_BY_CATEGORY;
     const variables = {
       term,
       location,
@@ -97,25 +96,9 @@ export default class SearchScreen extends React.Component<
     this.setState({showMapView: !showMapView});
   }
 
-  async getCurrentPosition(): Promise<Coordinates> {
-    return new Promise((resolve) => {
-      navigator.geolocation.getCurrentPosition(
-        position => {
-          const latitude = Number.parseFloat(JSON.stringify(position.coords.latitude));
-          const longitude = Number.parseFloat(JSON.stringify(position.coords.longitude));
-
-          resolve({
-            latitude,
-            longitude
-          });
-        }
-      );
-    });
-  }
-
   render() {
     const { results, region, showMapView } = this.state;
-    if (results.length === 0) {
+    if (results.length === 0) { // Loading
       return (
         <View style={{flex: 1, justifyContent: 'center'}}>
           <ActivityIndicator size="large" color={COLORS.red} />

@@ -8,7 +8,7 @@ import ApolloClient from 'apollo-boost';
 import ListItem from '../components/ListItem';
 import { QUERY_CATEGORIES } from '../api/Query';
 import { API_ENDPOINT, COLORS, POPULAR_CATEGORIES } from '../api/Constants';
-import { Category } from '../api/Types';
+import { Category, Coordinates } from '../api/Types';
 
 export default class HomeScreen extends React.Component<
   { // props
@@ -18,6 +18,7 @@ export default class HomeScreen extends React.Component<
     client: ApolloClient<unknown>,
     search: string,
     location: string,
+    coordinates: Coordinates,
     categories: Category[]
   }> {
   static navigationOptions = {
@@ -43,27 +44,32 @@ export default class HomeScreen extends React.Component<
       client: client,
       search: '',
       location: '',
+      coordinates: null,
       categories: POPULAR_CATEGORIES,
     };
   }
 
-  componentWillMount() {
+  async componentWillMount() {
+    const coordinates = await this.getCurrentPosition();
+    this.setState({ coordinates });
     this.getAllCategories();
   }
 
-  updateSearch = (search: string) => {
-    this.setState({ search });
-  };
+  async getCurrentPosition(): Promise<Coordinates> {
+    return new Promise((resolve) => {
+      navigator.geolocation.getCurrentPosition(
+        position => {
+          const latitude = Number.parseFloat(JSON.stringify(position.coords.latitude));
+          const longitude = Number.parseFloat(JSON.stringify(position.coords.longitude));
 
-  updateLocation = (location: string) => {
-    this.setState({ location });
-  };
-
-  search = (value: string) => {
-    this.setState({ search: "", location: "" })
-    const { client, location } = this.state;
-    this.props.navigation.navigate('Search', { client, value, location });
-  };
+          resolve({
+            latitude,
+            longitude
+          });
+        }
+      );
+    });
+  }
 
   getAllCategories = () => {
     const { client } = this.state;
@@ -76,6 +82,20 @@ export default class HomeScreen extends React.Component<
       this.setState({ categories: this.state.categories.concat(categories) });
     })
   }
+
+  updateSearch = (search: string) => {
+    this.setState({ search });
+  };
+
+  updateLocation = (location: string) => {
+    this.setState({ location });
+  };
+
+  search = (value: string) => {
+    this.setState({ search: "", location: "" })
+    const { client, location, coordinates } = this.state;
+    this.props.navigation.navigate('Search', { client, value, location, coordinates });
+  };
 
   render() {
       const { search, categories, client, location } = this.state;
@@ -134,15 +154,5 @@ const styles = StyleSheet.create({
   inputStyle: {
     color: 'black',
     fontSize: 16,
-  },
-  headerText: {
-    fontWeight: 'bold',
-    fontSize: 16,
-    backgroundColor: COLORS.lightgrey,
-  },
-  item: {
-    padding: 10,
-    fontSize: 18,
-    height: 44,
   },
 })
