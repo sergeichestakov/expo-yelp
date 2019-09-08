@@ -13,43 +13,43 @@ export const DEFAULT_DELTA = {
 
 export const POPULAR_CATEGORIES = [
   {
-    "alias": "",
-    "title": "Popular Categories",
+    alias: '',
+    title: 'Popular Categories',
   },
   {
-    "alias": "restaurants",
-    "title": "Restaurants"
+    alias: 'restaurants',
+    title: 'Restaurants',
   },
   {
-    "alias": "bars",
-    "title": "Bars"
+    alias: 'bars',
+    title: 'Bars',
   },
   {
-    "alias": "nightlife",
-    "title": "Nightlife"
+    alias: 'nightlife',
+    title: 'Nightlife',
   },
   {
-    "alias": "coffee",
-    "title": "Coffee & Tea"
+    alias: 'coffee',
+    title: 'Coffee & Tea',
   },
   {
-    "alias": "gasstations",
-    "title": "Gas Stations"
+    alias: 'gasstations',
+    title: 'Gas Stations',
   },
   {
-    "alias": "drugstores",
-    "title": "Drugstores"
+    alias: 'drugstores',
+    title: 'Drugstores',
   },
   {
-    "alias": "shopping",
-    "title": "Shopping"
+    alias: 'shopping',
+    title: 'Shopping',
   },
   {
-    "alias": "everything",
-    "title": "Everything"
+    alias: 'everything',
+    title: 'Everything',
   },
   {
-    "alias": "",
-    "title": "All Categories",
+    alias: '',
+    title: 'All Categories',
   },
 ];

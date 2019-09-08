@@ -1,13 +1,13 @@
 import { gql } from 'apollo-boost';
 
 export const QUERY_CATEGORIES = gql`{
-	categories {
-		category {
-		alias
-		title
-		}
-	}
-}`
+  categories {
+    category {
+      alias
+      title
+    }
+  }
+}`;
 
 export const QUERY_BUSINESSES_BY_TERM = gql`
   query getBusinessesBySearchTerm($term: String, $location: String, $longitude: Float, $latitude: Float) {

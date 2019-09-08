@@ -24,7 +24,7 @@ export type Region = {
 export type Business = {
   name: string,
   rating: number,
-  review_count: number,
+  review_count: number, // eslint-disable-line camelcase
   distance: number,
   photos: string,
   url: string,
@@ -33,6 +33,6 @@ export type Business = {
 }
 
 export enum ViewType {
-  MAP = 'Map',
-  LIST = 'List',
+  MAP = 'Map', // eslint-disable-line no-unused-vars
+  LIST = 'List', // eslint-disable-line no-unused-vars
 }
