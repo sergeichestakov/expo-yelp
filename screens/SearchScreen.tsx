@@ -1,10 +1,9 @@
 import React from 'react';
-import { StyleSheet, Text, View, ScrollView, Image, Dimensions } from 'react-native';
-import { Card, ListItem, Button, Icon } from 'react-native-elements'
+import { StyleSheet, Text, View, Button, ScrollView, Image, Dimensions } from 'react-native';
+import { Card, Icon } from 'react-native-elements'
 import { NavigationScreenProp } from 'react-navigation';
 import MapView, { Marker } from 'react-native-maps';
 import { gql } from "apollo-boost";
-import { valueToObjectRepresentation } from 'apollo-utilities';
 
 type Location = {
   address1: string,
@@ -30,7 +29,6 @@ type Business = {
 
 const COLORS = {
   red: '#d32323',
-  grey: '#919191',
 }
 
 export default class SearchScreen extends React.Component<
@@ -48,15 +46,27 @@ export default class SearchScreen extends React.Component<
     showMapView: boolean,
     isMapReady: boolean,
   }> {
-  static navigationOptions = {
-    headerStyle: {
-      backgroundColor: COLORS.red,
-    },
-    headerTintColor: '#fff',
-    headerTitleStyle: {
-      fontWeight: 'bold',
-    },
+  static navigationOptions = ({ navigation }) => {
+    return {
+      headerTitle: <Text style={styles.headerTitle}>Searching for {navigation.getParam('value')}</Text>,
+      headerStyle: {
+        backgroundColor: COLORS.red,
+        color: 'white',
+      },
+      headerTintColor: '#fff',
+
+      headerRight: (
+        <View style={{paddingRight: 10}}>
+          <Button
+            onPress={navigation.getParam('switchView')}
+            title={navigation.getParam('title', 'Map')}
+            color={COLORS.red}
+          />
+        </View>
+      ),
+    };
   };
+
   constructor(props) {
     super(props);
 
@@ -110,6 +120,18 @@ export default class SearchScreen extends React.Component<
     client
     .query({ query })
     .then(results => this.setState({results: results.data.search.business}));
+  }
+
+  componentDidMount() {
+    this.props.navigation.setParams({ switchView: this.switchView, title: 'Map' });
+  }
+
+  switchView = () => {
+    const { showMapView } = this.state;
+
+    const prevTitle = this.props.navigation.getParam('title');
+    this.props.navigation.setParams({title: prevTitle === 'Map' ? 'List' : 'Map'});
+    this.setState({showMapView: !showMapView});
   }
 
   async getCurrentPosition(): Promise<Coordinates> {
@@ -187,18 +209,23 @@ export default class SearchScreen extends React.Component<
   }
 
   render() {
-    const { results } = this.state;
+    const { results, showMapView } = this.state;
     if (results.length === 0) {
       return (
         <Text>Loading...</Text>
       )
     }
 
-    return (
-      <ScrollView style={{ flex: 1 }}>
+    if (showMapView) {
+      return (
         <View style={styles.map}>
           {this.renderMap()}
         </View>
+      )
+    }
+
+    return (
+      <ScrollView style={{ flex: 1 }}>
         {
           results.map((result, index) => {
             const title = `${index + 1}. ${result.name}`;
@@ -232,6 +259,10 @@ export default class SearchScreen extends React.Component<
 const styles = StyleSheet.create({
   title: {
     textAlign: 'left',
+  },
+  headerTitle: {
+    color: 'white',
+    fontSize: 18,
   },
   map: {
     flex: 1,
