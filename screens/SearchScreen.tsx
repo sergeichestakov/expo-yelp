@@ -166,7 +166,7 @@ export default class SearchScreen extends React.Component<
             coordinate={result.coordinates}
             key={index}
             title={result.name}
-            description={"Delicious food here."}
+            description={`${result.rating} Stars from ${result.review_count} Reviews`}
           />
         ))}
       </ MapView>
