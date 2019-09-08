@@ -38,6 +38,7 @@ export default class ListView extends Component<{ results: Business[] }, {}> {
   }
 
   renderResults(results) {
+    const size = 50;
     return results.map((result, index) => {
       const title = `${index + 1}. ${result.name}`;
       return (
@@ -47,7 +48,7 @@ export default class ListView extends Component<{ results: Business[] }, {}> {
           containerStyle={{flexDirection: 'row'}}
           key={index}>
           <Image
-            style={{width: 50, height: 50}}
+            style={{width: size, height: size}}
             source={{uri: result.photos[0]}}
           />
           {this.renderStarIcons(result.rating, result.review_count)}

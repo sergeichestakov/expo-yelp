@@ -50,9 +50,10 @@ export default class HomeScreen extends React.Component<
   }
 
   async componentWillMount() {
+    this.getAllCategories();
+
     const coordinates = await this.getCurrentPosition();
     this.setState({ coordinates });
-    this.getAllCategories();
   }
 
   async getCurrentPosition(): Promise<Coordinates> {
@@ -75,12 +76,12 @@ export default class HomeScreen extends React.Component<
     const { client } = this.state;
 
     client
-    .query({ query: QUERY_CATEGORIES })
-    .then(results => {
-      const categories = results.data.categories.category;
-      
-      this.setState({ categories: this.state.categories.concat(categories) });
-    })
+      .query({ query: QUERY_CATEGORIES })
+      .then(results => {
+        const categories = results.data.categories.category;
+
+        this.setState({ categories: this.state.categories.concat(categories) });
+      })
   }
 
   updateSearch = (search: string) => {
@@ -107,7 +108,6 @@ export default class HomeScreen extends React.Component<
               placeholder="Search for burgers, delivery, barbeque..."
               onChangeText={this.updateSearch}
               containerStyle={styles.containerStyle}
-              inputContainerStyle={{borderRadius: 1, borderColor: 'blue'}}
               inputStyle={styles.inputStyle}
               platform="android"
               lightTheme
