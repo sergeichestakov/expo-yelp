@@ -31,3 +31,8 @@ export type Business = {
   location: Location,
   coordinates: Coordinates,
 }
+
+export enum ViewType {
+  MAP = 'Map',
+  LIST = 'List',
+}

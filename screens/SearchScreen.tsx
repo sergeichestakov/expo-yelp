@@ -7,7 +7,7 @@ import Map from '../components/Map';
 import ListView from '../components/ListView';
 import { COLORS, DEFAULT_DELTA } from '../api/Constants';
 import { QUERY_BUSINESSES_BY_TERM, QUERY_BUSINESSES_BY_CATEGORY } from '../api/Query';
-import { Business, Coordinates, Region } from '../api/Types';
+import { Business, Coordinates, Region, ViewType } from '../api/Types';
 
 export default class SearchScreen extends React.Component<
   { // props
@@ -32,7 +32,7 @@ export default class SearchScreen extends React.Component<
         <View style={{paddingRight: 10}}>
           <Button
             onPress={navigation.getParam('switchView')}
-            title={navigation.getParam('buttonTitle', 'Map')}
+            title={navigation.getParam('buttonTitle', ViewType.MAP)}
             color={COLORS.red}
           />
         </View>
@@ -86,14 +86,14 @@ export default class SearchScreen extends React.Component<
   }
 
   componentDidMount() {
-    this.props.navigation.setParams({ switchView: this.switchView, buttonTitle: 'Map' });
+    this.props.navigation.setParams({ switchView: this.switchView, buttonTitle: ViewType.MAP });
   }
 
   switchView = () => {
     const { showMapView } = this.state;
 
     const prevTitle = this.props.navigation.getParam('buttonTitle');
-    this.props.navigation.setParams({buttonTitle: prevTitle === 'Map' ? 'List' : 'Map'});
+    this.props.navigation.setParams({buttonTitle: prevTitle === ViewType.MAP ? ViewType.LIST : ViewType.MAP});
     this.setState({showMapView: !showMapView});
   }
 
