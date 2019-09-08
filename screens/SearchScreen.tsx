@@ -2,12 +2,12 @@ import React from 'react';
 import { ActivityIndicator, StyleSheet, Text, View, Button, ScrollView, Image, Dimensions } from 'react-native';
 import { Card, Icon } from 'react-native-elements'
 import { NavigationScreenProp } from 'react-navigation';
-import MapView, { Marker } from 'react-native-maps';
 import ApolloClient from "apollo-boost";
 
+import Map from '../components/Map';
 import { COLORS, DEFAULT_DELTA } from '../api/Constants';
 import { QUERY_BUSINESSES_BY_TERM, QUERY_BUSINESSES_BY_CATEGORY } from '../api/Query';
-import { Business, Coordinates } from '../api/Types';
+import { Business, Coordinates, Region } from '../api/Types';
 
 export default class SearchScreen extends React.Component<
   { // props
@@ -15,12 +15,7 @@ export default class SearchScreen extends React.Component<
   },
   { // state
     results: Business[],
-    region: {
-      latitude: number,
-      longitude: number,
-      latitudeDelta: number,
-      longitudeDelta: number,
-    } | null,
+    region: Region,
     showMapView: boolean,
     isMapReady: boolean,
   }> {
@@ -86,7 +81,8 @@ export default class SearchScreen extends React.Component<
       // If the user inputted the location, center the map around the first result
       if (location.length) {
         const { coordinates } = businesses[0];
-        this.setState({region: { longitude: coordinates.longitude, latitude: coordinates.latitude, ...DEFAULT_DELTA }})
+        const { latitude, longitude } = coordinates;
+        this.setState({region: { latitude, longitude, ...DEFAULT_DELTA }});
       }
     });
   }
@@ -117,29 +113,6 @@ export default class SearchScreen extends React.Component<
         }
       );
     });
-  }
-
-  onMapLayout = () => {
-    this.setState({ isMapReady: true });
-  }
-
-  renderMap() {
-    return (
-      <MapView
-        region={this.state.region}
-        style={styles.map}
-        onLayout={this.onMapLayout}
-      >
-        {this.state.isMapReady && this.state.results.map((result, index) => (
-          <Marker
-            coordinate={result.coordinates}
-            key={index}
-            title={result.name}
-            description={`${result.rating} Stars from ${result.review_count} Reviews`}
-          />
-        ))}
-      </ MapView>
-    )
   }
 
   renderStarIcons(rating: number, review_count: number) {
@@ -196,7 +169,7 @@ export default class SearchScreen extends React.Component<
   }
 
   render() {
-    const { results, showMapView } = this.state;
+    const { results, region, showMapView } = this.state;
     if (results.length === 0) {
       return (
         <View style={{flex: 1, justifyContent: 'center'}}>
@@ -207,9 +180,7 @@ export default class SearchScreen extends React.Component<
 
     if (showMapView) {
       return (
-        <View style={styles.map}>
-          {this.renderMap()}
-        </View>
+        <Map region={region} results={results} />
       )
     } else { // Show ListView
       return (

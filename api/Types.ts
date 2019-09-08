@@ -14,6 +14,13 @@ export type Coordinates = {
   latitude: number,
 }
 
+export type Region = {
+  latitude: number,
+  longitude: number,
+  latitudeDelta: number,
+  longitudeDelta: number,
+}
+
 export type Business = {
   name: string,
   rating: number,
