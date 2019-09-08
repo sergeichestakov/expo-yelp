@@ -48,7 +48,7 @@ export default class SearchScreen extends React.Component<
   }> {
   static navigationOptions = ({ navigation }) => {
     return {
-      headerTitle: <Text style={styles.headerTitle}>Searching for {navigation.getParam('value')}</Text>,
+      headerTitle: <Text style={styles.headerTitle}>Searching for {navigation.getParam('value') || navigation.getParam('categoryTitle')}</Text>,
       headerStyle: {
         backgroundColor: COLORS.red,
         color: 'white',
@@ -59,7 +59,7 @@ export default class SearchScreen extends React.Component<
         <View style={{paddingRight: 10}}>
           <Button
             onPress={navigation.getParam('switchView')}
-            title={navigation.getParam('title', 'Map')}
+            title={navigation.getParam('buttonTitle', 'Map')}
             color={COLORS.red}
           />
         </View>
@@ -85,16 +85,19 @@ export default class SearchScreen extends React.Component<
 
     const { navigation } = this.props;
     const location = navigation.getParam('location', null);
+    const category = navigation.getParam('category', null);
     const client = navigation.getParam('client');
     const value: string = navigation.getParam('value');
 
     const locationString = location !== null ?
       `location: "${location}"` :
-      `longitude: ${longitude}\nlatitude: ${latitude}`
+      `longitude: ${longitude}\nlatitude: ${latitude}`;
+
+    const search = category === null ? `term: "${value}"` : `categories: "${category}"`;
 
     const query = gql`
     {
-      search(term: "${value}",
+      search(${search},
             ${locationString}) {
         total
         business {
@@ -117,20 +120,21 @@ export default class SearchScreen extends React.Component<
       }
     }
     `;
+
     client
     .query({ query })
-    .then(results => this.setState({results: results.data.search.business}));
+    .then(results => {console.log(results);this.setState({results: results.data.search.business})});
   }
 
   componentDidMount() {
-    this.props.navigation.setParams({ switchView: this.switchView, title: 'Map' });
+    this.props.navigation.setParams({ switchView: this.switchView, buttonTitle: 'Map' });
   }
 
   switchView = () => {
     const { showMapView } = this.state;
 
-    const prevTitle = this.props.navigation.getParam('title');
-    this.props.navigation.setParams({title: prevTitle === 'Map' ? 'List' : 'Map'});
+    const prevTitle = this.props.navigation.getParam('buttonTitle');
+    this.props.navigation.setParams({buttonTitle: prevTitle === 'Map' ? 'List' : 'Map'});
     this.setState({showMapView: !showMapView});
   }
 
@@ -173,15 +177,14 @@ export default class SearchScreen extends React.Component<
     )
   }
 
-  createStarIcons(rating: number, review_count: number) {
+  renderStarIcons(rating: number, review_count: number) {
     const icons = []
-    console.log(rating)
     for (let star = 1; star <= rating; star++) {
       icons.push(
-      <Icon
-        name = 'star'
-        key={star}
-        type='font-awesome'
+        <Icon
+          name = 'star'
+          key={star}
+          type='font-awesome'
         />
       )
     }
@@ -216,7 +219,7 @@ export default class SearchScreen extends React.Component<
             style={{width: 50, height: 50}}
             source={{uri: result.photos[0]}}
           />
-          {this.createStarIcons(result.rating, result.review_count)}
+          {this.renderStarIcons(result.rating, result.review_count)}
           <Text>
             {result.location.address1}, {result.location.city}
           </Text>
@@ -244,13 +247,13 @@ export default class SearchScreen extends React.Component<
           {this.renderMap()}
         </View>
       )
+    } else { // Show ListView
+      return (
+        <ScrollView style={{ flex: 1 }}>
+          {this.renderResults(results)}
+        </ScrollView>
+      );
     }
-
-    return (
-      <ScrollView style={{ flex: 1 }}>
-        {this.renderResults(results)}
-      </ScrollView>
-    );
   }
 }
 

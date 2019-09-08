@@ -1,5 +1,5 @@
 import React from 'react';
-import { StyleSheet, Text, View, FlatList } from 'react-native';
+import { StyleSheet, Text, View, FlatList, Platform, TouchableNativeFeedback, TouchableHighlight } from 'react-native';
 import ApolloClient, { gql } from 'apollo-boost';
 import { YELP_API_KEY } from 'react-native-dotenv'
 import { NavigationScreenProp } from 'react-navigation';
@@ -48,6 +48,43 @@ const POPULAR_CATEGORIES = [
     "title": "All Categories",
   },
 ]
+
+class ListItem extends React.Component<
+  {
+    alias: string,
+    title: string,
+    client: ApolloClient<unknown>,
+    navigation: NavigationScreenProp<any,any>
+  }> {
+  onPress = () => {
+    const { alias, client, title } = this.props;
+    if (alias) {
+      this.props.navigation.navigate('Search', { category: alias, client, categoryTitle: title })
+    }
+  };
+
+  renderText = () => {
+    const { alias, title } = this.props;
+    return (
+      <Text style={alias.length > 0 ? styles.item: styles.headerText}>{title}</Text>
+    );
+  };
+
+  render() {
+    return Platform.select({
+      android: (
+        <TouchableNativeFeedback onPress={this.onPress}>
+          {this.renderText()}
+        </TouchableNativeFeedback>
+      ),
+      default: (
+        <TouchableHighlight onPress={this.onPress} underlayColor="lightgray">
+          {this.renderText()}
+        </TouchableHighlight>
+      ),
+    });
+  }
+}
 
 const API_ENDPOINT: string = 'https://api.yelp.com/v3/graphql';
 const COLORS = {
@@ -131,7 +168,7 @@ export default class HomeScreen extends React.Component<
   }
 
   render() {
-      const { search, categories } = this.state;
+      const { search, categories, client } = this.state;
 
       return (
         <View>
@@ -150,7 +187,7 @@ export default class HomeScreen extends React.Component<
           <FlatList
             data={categories}
             keyExtractor={(_, index) => index.toString()}
-            renderItem={({item}) => <Text style={item.alias.length > 0 ? styles.item: styles.headerText}>{item.title}</Text>}
+            renderItem={({item}) => <ListItem alias={item.alias} client={client} title={item.title} navigation={this.props.navigation}></ListItem>}
             stickyHeaderIndices={[0, POPULAR_CATEGORIES.length - 1]}
           />
         </View>
@@ -180,7 +217,7 @@ const styles = StyleSheet.create({
   },
   item: {
     padding: 10,
-    fontSize: 20,
+    fontSize: 18,
     height: 44,
   },
 })
