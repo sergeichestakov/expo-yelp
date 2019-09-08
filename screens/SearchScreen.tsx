@@ -84,12 +84,13 @@ export default class SearchScreen extends React.Component<
     this.setState({region: { longitude, latitude, latitudeDelta: 0.0922, longitudeDelta: 0.0421 }})
 
     const { navigation } = this.props;
-    const location = navigation.getParam('location', null);
+    const location = navigation.getParam('location', "");
+    const userInputtedLocation = location && location.length > 0;
     const category = navigation.getParam('category', null);
     const client = navigation.getParam('client');
     const value: string = navigation.getParam('value');
 
-    const locationString = location !== null ?
+    const locationString = userInputtedLocation ?
       `location: "${location}"` :
       `longitude: ${longitude}\nlatitude: ${latitude}`;
 
@@ -123,7 +124,16 @@ export default class SearchScreen extends React.Component<
 
     client
     .query({ query })
-    .then(results => {console.log(results);this.setState({results: results.data.search.business})});
+    .then(results => {
+      const businesses = results.data.search.business;
+      this.setState({results: businesses});
+
+      // If the user inputted the location, center the map around the first result
+      if (userInputtedLocation) {
+        const { coordinates } = businesses[0];
+        this.setState({region: { longitude: coordinates.longitude, latitude: coordinates.latitude, latitudeDelta: 0.0922, longitudeDelta: 0.0421 }})
+      }
+    });
   }
 
   componentDidMount() {
@@ -208,7 +218,6 @@ export default class SearchScreen extends React.Component<
   renderResults(results) {
     return results.map((result, index) => {
       const title = `${index + 1}. ${result.name}`;
-      console.log(result.photos)
       return (
         <Card
           title={title}
@@ -224,7 +233,7 @@ export default class SearchScreen extends React.Component<
             {result.location.address1}, {result.location.city}
           </Text>
           <Text style={{marginBottom: 10}}>
-            {(result.distance / 1000).toFixed(0)} km away
+            {(result.distance / 1000).toFixed(1)} km away
           </Text>
         </Card>
       );

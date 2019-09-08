@@ -63,23 +63,28 @@ class ListItem extends React.Component<
     }
   };
 
-  renderText = () => {
+  renderView = () => {
     const { alias, title } = this.props;
     return (
-      <Text style={alias.length > 0 ? styles.item: styles.headerText}>{title}</Text>
+      <View>
+        <Text style={alias.length > 0 ? styles.item: styles.headerText}>{title}</Text>
+      </View>
     );
   };
 
   render() {
     return Platform.select({
       android: (
-        <TouchableNativeFeedback onPress={this.onPress}>
-          {this.renderText()}
+        <TouchableNativeFeedback
+            onPress={this.onPress}
+            background={TouchableNativeFeedback.Ripple('grey')}
+          >
+          {this.renderView()}
         </TouchableNativeFeedback>
       ),
       default: (
         <TouchableHighlight onPress={this.onPress} underlayColor="lightgray">
-          {this.renderText()}
+          {this.renderView()}
         </TouchableHighlight>
       ),
     });
@@ -105,6 +110,7 @@ export default class HomeScreen extends React.Component<
   { // state
     client: ApolloClient<unknown>,
     search: string,
+    location: string | null,
     categories: Category[]
   }> {
   static navigationOptions = {
@@ -129,6 +135,7 @@ export default class HomeScreen extends React.Component<
     this.state = {
       client: client,
       search: '',
+      location: null,
       categories: POPULAR_CATEGORIES,
     };
   }
@@ -141,10 +148,14 @@ export default class HomeScreen extends React.Component<
     this.setState({ search });
   };
 
+  updateLocation = (location: string) => {
+    this.setState({ location });
+  };
+
   search = (value: string) => {
-    this.setState({ search: "" })
-    const { client } = this.state;
-    this.props.navigation.navigate('Search', { client, value });
+    this.setState({ search: "", location: "" })
+    const { client, location } = this.state;
+    this.props.navigation.navigate('Search', { client, value, location });
   };
 
   getAllCategories = () => {
@@ -168,7 +179,7 @@ export default class HomeScreen extends React.Component<
   }
 
   render() {
-      const { search, categories, client } = this.state;
+      const { search, categories, client, location } = this.state;
 
       return (
         <View>
@@ -177,11 +188,24 @@ export default class HomeScreen extends React.Component<
               placeholder="Search for burgers, delivery, barbeque..."
               onChangeText={this.updateSearch}
               containerStyle={styles.containerStyle}
+              inputContainerStyle={{borderRadius: 1, borderColor: 'blue'}}
               inputStyle={styles.inputStyle}
               platform="android"
               lightTheme
               onSubmitEditing={() => this.search(search)}
               value={search}
+            />
+            <SearchBar
+              placeholder="Current Location"
+              placeholderTextColor="blue"
+              onChangeText={this.updateLocation}
+              containerStyle={styles.containerStyle}
+              inputStyle={styles.inputStyle}
+              searchIcon={null}
+              platform="android"
+              lightTheme
+              onSubmitEditing={() => this.search(search)}
+              value={location}
             />
           </View>
           <FlatList
@@ -205,9 +229,11 @@ const styles = StyleSheet.create({
   },
   containerStyle: {
     height: 50,
+    borderTopWidth: 0.5,
+    borderTopColor: COLORS.lightgrey
   },
   inputStyle: {
-    color: COLORS.grey,
+    color: 'black',
     fontSize: 16,
   },
   headerText: {
