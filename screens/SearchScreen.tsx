@@ -1,10 +1,10 @@
 import React from 'react';
-import { ActivityIndicator, StyleSheet, Text, View, Button, ScrollView, Image, Dimensions } from 'react-native';
-import { Card, Icon } from 'react-native-elements'
+import { ActivityIndicator, StyleSheet, Text, View, Button, Dimensions } from 'react-native';
 import { NavigationScreenProp } from 'react-navigation';
 import ApolloClient from "apollo-boost";
 
 import Map from '../components/Map';
+import ListView from '../components/ListView';
 import { COLORS, DEFAULT_DELTA } from '../api/Constants';
 import { QUERY_BUSINESSES_BY_TERM, QUERY_BUSINESSES_BY_CATEGORY } from '../api/Query';
 import { Business, Coordinates, Region } from '../api/Types';
@@ -17,7 +17,6 @@ export default class SearchScreen extends React.Component<
     results: Business[],
     region: Region,
     showMapView: boolean,
-    isMapReady: boolean,
   }> {
   static navigationOptions = ({ navigation }) => {
     const title = `Searching for ${navigation.getParam('value') || navigation.getParam('categoryTitle')}`
@@ -48,7 +47,6 @@ export default class SearchScreen extends React.Component<
       results: [],
       region: null,
       showMapView: false,
-      isMapReady: false,
     }
   }
 
@@ -115,59 +113,6 @@ export default class SearchScreen extends React.Component<
     });
   }
 
-  renderStarIcons(rating: number, review_count: number) {
-    const icons = []
-    for (let star = 1; star <= rating; star++) {
-      icons.push(
-        <Icon
-          name = 'star'
-          key={star}
-          type='font-awesome'
-        />
-      )
-    }
-    if (!Number.isInteger(rating)) {
-      icons.push(
-        <Icon
-          name = 'star-half'
-          key={6}
-          type='font-awesome'
-          />
-        )
-    }
-    return (
-      <View style={{flexDirection: 'row', marginTop: 10}}>
-        {icons}
-        <Text> {review_count} Reviews</Text>
-      </View>
-    )
-  }
-
-  renderResults(results) {
-    return results.map((result, index) => {
-      const title = `${index + 1}. ${result.name}`;
-      return (
-        <Card
-          title={title}
-          titleStyle={styles.title}
-          containerStyle={{flexDirection: 'row'}}
-          key={index}>
-          <Image
-            style={{width: 50, height: 50}}
-            source={{uri: result.photos[0]}}
-          />
-          {this.renderStarIcons(result.rating, result.review_count)}
-          <Text>
-            {result.location.address1}, {result.location.city}
-          </Text>
-          <Text style={{marginBottom: 10}}>
-            {(result.distance / 1000).toFixed(1)} km away
-          </Text>
-        </Card>
-      );
-    })
-  }
-
   render() {
     const { results, region, showMapView } = this.state;
     if (results.length === 0) {
@@ -178,31 +123,15 @@ export default class SearchScreen extends React.Component<
       )
     }
 
-    if (showMapView) {
-      return (
-        <Map region={region} results={results} />
-      )
-    } else { // Show ListView
-      return (
-        <ScrollView style={{ flex: 1 }}>
-          {this.renderResults(results)}
-        </ScrollView>
-      );
-    }
+    return showMapView ?
+      <Map region={region} results={results} /> :
+      <ListView results={results}/>;
   }
 }
 
 const styles = StyleSheet.create({
-  title: {
-    textAlign: 'left',
-  },
   headerTitle: {
     color: 'white',
     fontSize: 18,
-  },
-  map: {
-    flex: 1,
-    width: Dimensions.get('window').width,
-    height: Dimensions.get('window').height,
   },
 });
