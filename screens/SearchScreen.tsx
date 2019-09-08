@@ -1,5 +1,5 @@
 import React from 'react';
-import { StyleSheet, Text, View, Button, ScrollView, Image, Dimensions } from 'react-native';
+import { ActivityIndicator, StyleSheet, Text, View, Button, ScrollView, Image, Dimensions } from 'react-native';
 import { Card, Icon } from 'react-native-elements'
 import { NavigationScreenProp } from 'react-navigation';
 import MapView, { Marker } from 'react-native-maps';
@@ -155,12 +155,6 @@ export default class SearchScreen extends React.Component<
   }
 
   renderMap() {
-    if (!this.state.region) {
-      return (
-        <Text>Loading...</Text>
-      )
-    }
-    
     return (
       <MapView
         region={this.state.region}
@@ -208,11 +202,39 @@ export default class SearchScreen extends React.Component<
     )
   }
 
+  renderResults(results) {
+    return results.map((result, index) => {
+      const title = `${index + 1}. ${result.name}`;
+      console.log(result.photos)
+      return (
+        <Card
+          title={title}
+          titleStyle={styles.title}
+          containerStyle={{flexDirection: 'row'}}
+          key={index}>
+          <Image
+            style={{width: 50, height: 50}}
+            source={{uri: result.photos[0]}}
+          />
+          {this.createStarIcons(result.rating, result.review_count)}
+          <Text>
+            {result.location.address1}, {result.location.city}
+          </Text>
+          <Text style={{marginBottom: 10}}>
+            {(result.distance / 1000).toFixed(0)} km away
+          </Text>
+        </Card>
+      );
+    })
+  }
+
   render() {
     const { results, showMapView } = this.state;
     if (results.length === 0) {
       return (
-        <Text>Loading...</Text>
+        <View style={{flex: 1, justifyContent: 'center'}}>
+          <ActivityIndicator size="large" color={COLORS.red} />
+        </View>
       )
     }
 
@@ -226,31 +248,7 @@ export default class SearchScreen extends React.Component<
 
     return (
       <ScrollView style={{ flex: 1 }}>
-        {
-          results.map((result, index) => {
-            const title = `${index + 1}. ${result.name}`;
-            console.log(result.photos)
-            return (
-              <Card
-                title={title}
-                titleStyle={styles.title}
-                containerStyle={{flexDirection: 'row'}}
-                key={index}>
-                <Image
-                  style={{width: 50, height: 50}}
-                  source={{uri: result.photos[0]}}
-                />
-                {this.createStarIcons(result.rating, result.review_count)}
-                <Text>
-                  {result.location.address1}, {result.location.city}
-                </Text>
-                <Text style={{marginBottom: 10}}>
-                  {(result.distance / 1000).toFixed(0)} km away
-                </Text>
-              </Card>
-            );
-          })
-        }
+        {this.renderResults(results)}
       </ScrollView>
     );
   }
@@ -268,5 +266,5 @@ const styles = StyleSheet.create({
     flex: 1,
     width: Dimensions.get('window').width,
     height: Dimensions.get('window').height,
-  }
+  },
 });
