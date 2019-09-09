@@ -59,14 +59,11 @@ export default class ListView extends React.Component<{ results: Business[] }, {
           />
           {this.renderStarIcons(result.rating, result.review_count)}
           <Text>
-            {result.location.address1}
-,
-            {result.location.city}
+            {result.location.address1}, {result.location.city}
           </Text>
           <Text style={{ marginBottom: 10 }}>
             {(result.distance / 1000).toFixed(1)}
-            {' '}
-km away
+            {' '} km away
           </Text>
         </Card>
       );
