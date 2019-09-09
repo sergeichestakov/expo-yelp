@@ -12,7 +12,7 @@ import { Category, Coordinates } from '../api/Types';
 
 export default class HomeScreen extends React.Component<
   { // props
-    navigation: NavigationScreenProp<any,any>
+    navigation: NavigationScreenProp<any, any>
   },
   { // state
     client: ApolloClient<unknown>,
@@ -31,17 +31,18 @@ export default class HomeScreen extends React.Component<
       fontWeight: 'bold',
     },
   };
+
   constructor(props) {
     super(props);
 
     const client = new ApolloClient({
       uri: API_ENDPOINT,
       headers: {
-        authorization: `Bearer ${YELP_API_KEY}`
-      }
+        authorization: `Bearer ${YELP_API_KEY}`,
+      },
     });
     this.state = {
-      client: client,
+      client,
       search: '',
       location: '',
       coordinates: null,
@@ -59,15 +60,15 @@ export default class HomeScreen extends React.Component<
   async getCurrentPosition(): Promise<Coordinates> {
     return new Promise((resolve) => {
       navigator.geolocation.getCurrentPosition(
-        position => {
+        (position) => {
           const latitude = Number.parseFloat(JSON.stringify(position.coords.latitude));
           const longitude = Number.parseFloat(JSON.stringify(position.coords.longitude));
 
           resolve({
             latitude,
-            longitude
+            longitude,
           });
-        }
+        },
       );
     });
   }
@@ -77,11 +78,11 @@ export default class HomeScreen extends React.Component<
 
     client
       .query({ query: QUERY_CATEGORIES })
-      .then(results => {
+      .then((results) => {
         const categories = results.data.categories.category;
 
         this.setState({ categories: this.state.categories.concat(categories) });
-      })
+      });
   }
 
   updateSearch = (search: string) => {
@@ -93,49 +94,64 @@ export default class HomeScreen extends React.Component<
   };
 
   search = (value: string) => {
-    this.setState({ search: "", location: "" })
+    this.setState({ search: '', location: '' });
     const { client, location, coordinates } = this.state;
-    this.props.navigation.navigate('Search', { client, value, location, coordinates });
+    this.props.navigation.navigate('Search', {
+      client, value, location, coordinates,
+    });
   };
 
-  render() {
-      const { search, categories, client, location } = this.state;
+  renderItem(item: Category, client: ApolloClient<unknown>) {
+    return (
+      <ListItem
+        alias={item.alias}
+        client={client}
+        title={item.title}
+        navigation={this.props.navigation}
+      />
+    );
+  }
 
-      return (
-        <View>
-          <View style={styles.searchBarView}>
-            <SearchBar
-              placeholder="Search for burgers, delivery, barbeque..."
-              onChangeText={this.updateSearch}
-              containerStyle={styles.containerStyle}
-              inputStyle={styles.inputStyle}
-              platform="android"
-              lightTheme
-              onSubmitEditing={() => this.search(search)}
-              value={search}
-            />
-            <SearchBar
-              placeholder="Current Location"
-              placeholderTextColor="blue"
-              onChangeText={this.updateLocation}
-              containerStyle={styles.containerStyle}
-              inputStyle={styles.inputStyle}
-              searchIcon={null}
-              platform="android"
-              lightTheme
-              onSubmitEditing={() => this.search(search)}
-              value={location}
-            />
-          </View>
-          <FlatList
-            data={categories}
-            keyExtractor={(_, index) => index.toString()}
-            renderItem={({item}) => <ListItem alias={item.alias} client={client} title={item.title} navigation={this.props.navigation}></ListItem>}
-            stickyHeaderIndices={[0, POPULAR_CATEGORIES.length - 1]}
+  render() {
+    const {
+      search, categories, client, location,
+    } = this.state;
+
+    return (
+      <View>
+        <View style={styles.searchBarView}>
+          <SearchBar
+            placeholder="Search for burgers, delivery, barbeque..."
+            onChangeText={this.updateSearch}
+            containerStyle={styles.containerStyle}
+            inputStyle={styles.inputStyle}
+            platform="android"
+            lightTheme
+            onSubmitEditing={() => this.search(search)}
+            value={search}
+          />
+          <SearchBar
+            placeholder="Current Location"
+            placeholderTextColor="blue"
+            onChangeText={this.updateLocation}
+            containerStyle={styles.containerStyle}
+            inputStyle={styles.inputStyle}
+            searchIcon={null}
+            platform="android"
+            lightTheme
+            onSubmitEditing={() => this.search(search)}
+            value={location}
           />
         </View>
-      );
-    }
+        <FlatList
+          data={categories}
+          keyExtractor={(_, index) => index.toString()}
+          renderItem={({ item }) => this.renderItem(item, client)}
+          stickyHeaderIndices={[0, POPULAR_CATEGORIES.length - 1]}
+        />
+      </View>
+    );
+  }
 }
 
 const styles = StyleSheet.create({
@@ -149,10 +165,10 @@ const styles = StyleSheet.create({
   containerStyle: {
     height: 50,
     borderTopWidth: 0.5,
-    borderTopColor: COLORS.lightgrey
+    borderTopColor: COLORS.lightgrey,
   },
   inputStyle: {
     color: 'black',
     fontSize: 16,
   },
-})
+});
