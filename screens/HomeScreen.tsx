@@ -1,5 +1,5 @@
 import React from 'react';
-import { StyleSheet, View, FlatList } from 'react-native';
+import { ActivityIndicator, StyleSheet, View, FlatList } from 'react-native';
 import { NavigationScreenProp } from 'react-navigation';
 import { SearchBar } from 'react-native-elements';
 import { YELP_API_KEY } from 'react-native-dotenv';
@@ -17,6 +17,7 @@ export default class HomeScreen extends React.Component<
   { // state
     client: ApolloClient<unknown>,
     search: string,
+    loading: boolean,
     location: string,
     coordinates: Coordinates,
     categories: Category[]
@@ -45,6 +46,7 @@ export default class HomeScreen extends React.Component<
       client,
       search: '',
       location: '',
+      loading: true,
       coordinates: null,
       categories: POPULAR_CATEGORIES,
     };
@@ -54,7 +56,7 @@ export default class HomeScreen extends React.Component<
     this.getAllCategories();
 
     const coordinates = await this.getCurrentPosition();
-    this.setState({ coordinates });
+    this.setState({ coordinates, loading: false });
   }
 
   async getCurrentPosition(): Promise<Coordinates> {
@@ -118,8 +120,28 @@ export default class HomeScreen extends React.Component<
     );
   }
 
+  renderListOrLoading() {
+    const { loading, categories } = this.state;
+    if (loading) {
+      return (
+        <View style={{ top: 100 }}>
+          <ActivityIndicator size="large" color={COLORS.red} />
+        </View>
+      )
+    }
+
+    return (
+      <FlatList
+          data={categories}
+          keyExtractor={(_, index) => index.toString()}
+          renderItem={({ item }) => this.renderItem(item)}
+          stickyHeaderIndices={[0, POPULAR_CATEGORIES.length - 1]}
+        />
+    )
+  }
+
   render() {
-    const { search, categories, location } = this.state;
+    const { search, location } = this.state;
 
     return (
       <View>
@@ -147,12 +169,7 @@ export default class HomeScreen extends React.Component<
             value={location}
           />
         </View>
-        <FlatList
-          data={categories}
-          keyExtractor={(_, index) => index.toString()}
-          renderItem={({ item }) => this.renderItem(item)}
-          stickyHeaderIndices={[0, POPULAR_CATEGORIES.length - 1]}
-        />
+        {this.renderListOrLoading()}
       </View>
     );
   }

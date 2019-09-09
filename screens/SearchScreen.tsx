@@ -62,13 +62,12 @@ export default class SearchScreen extends React.Component<
     this.setState({ region: { longitude, latitude, ...DEFAULT_DELTA } });
 
     const query = categories === null ? QUERY_BUSINESSES_BY_TERM : QUERY_BUSINESSES_BY_CATEGORY;
+    const search = categories === null ? { term } : { categories };
     const variables = location.length ? { // Use user inputted location
-      term,
-      categories,
+      ...search,
       location,
     } : { // Use current lat/lng
-      term,
-      categories,
+      ...search,
       longitude,
       latitude,
     };
