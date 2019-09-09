@@ -1,6 +1,8 @@
-import { Component } from 'React';
-import { Image, Text, ScrollView, StyleSheet, View } from 'react-native';
-import { Card, Icon } from 'react-native-elements'
+import { Component } from 'react';
+import {
+  Image, Text, ScrollView, StyleSheet, View,
+} from 'react-native';
+import { Card, Icon } from 'react-native-elements';
 
 import { Business } from '../api/Types';
 
@@ -10,31 +12,36 @@ export default class ListView extends Component<{ results: Business[] }, {}> {
   }
 
   renderStarIcons(rating: number, review_count: number) {
-    const icons = []
+    const icons = [];
     for (let star = 1; star <= rating; star++) {
       icons.push(
         <Icon
-          name = 'star'
+          name="star"
           key={star}
-          type='font-awesome'
-        />
-      )
+          type="font-awesome"
+        />,
+      );
     }
     if (!Number.isInteger(rating)) {
       icons.push(
         <Icon
-          name = 'star-half'
+          name="star-half"
           key={6}
-          type='font-awesome'
-          />
-        )
+          type="font-awesome"
+        />,
+      );
     }
     return (
-      <View style={{flexDirection: 'row', marginTop: 10}}>
+      <View style={{ flexDirection: 'row', marginTop: 10 }}>
         {icons}
-        <Text> {review_count} Reviews</Text>
+        <Text>
+          {' '}
+          {review_count}
+          {' '}
+          Reviews
+        </Text>
       </View>
-    )
+    );
   }
 
   renderResults(results) {
@@ -45,22 +52,27 @@ export default class ListView extends Component<{ results: Business[] }, {}> {
         <Card
           title={title}
           titleStyle={styles.cardTitle}
-          containerStyle={{flexDirection: 'row'}}
-          key={index}>
+          containerStyle={{ flexDirection: 'row' }}
+          key={index}
+        >
           <Image
-            style={{width: size, height: size}}
-            source={{uri: result.photos[0]}}
+            style={{ width: size, height: size }}
+            source={{ uri: result.photos[0] }}
           />
           {this.renderStarIcons(result.rating, result.review_count)}
           <Text>
-            {result.location.address1}, {result.location.city}
+            {result.location.address1}
+,
+            {result.location.city}
           </Text>
-          <Text style={{marginBottom: 10}}>
-            {(result.distance / 1000).toFixed(1)} km away
+          <Text style={{ marginBottom: 10 }}>
+            {(result.distance / 1000).toFixed(1)}
+            {' '}
+km away
           </Text>
         </Card>
       );
-    })
+    });
   }
 
   render() {
@@ -69,7 +81,7 @@ export default class ListView extends Component<{ results: Business[] }, {}> {
       <ScrollView style={{ flex: 1 }}>
         {this.renderResults(results)}
       </ScrollView>
-    )
+    );
   }
 }
 

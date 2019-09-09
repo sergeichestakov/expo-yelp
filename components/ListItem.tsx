@@ -1,21 +1,23 @@
-import React from 'React';
-import { Text, View, Platform, StyleSheet, TouchableNativeFeedback, TouchableHighlight } from 'react-native';
+import React from 'react';
+import {
+  Text, View, Platform, StyleSheet, TouchableNativeFeedback, TouchableHighlight,
+} from 'react-native';
 import ApolloClient from 'apollo-boost';
 import { NavigationScreenProp } from 'react-navigation';
 
 import { COLORS } from '../api/Constants';
 
 export default class ListItem extends React.Component<
-  {
+  { // props
     alias: string,
     title: string,
     client: ApolloClient<unknown>,
-    navigation: NavigationScreenProp<any,any>
+    navigation: NavigationScreenProp<any, any>
   }> {
   onPress = () => {
     const { alias, client, title } = this.props;
     if (alias) {
-      this.props.navigation.navigate('Search', { category: alias, client, categoryTitle: title })
+      this.props.navigation.navigate('Search', { category: alias, client, categoryTitle: title });
     }
   };
 
@@ -23,7 +25,7 @@ export default class ListItem extends React.Component<
     const { alias, title } = this.props;
     return (
       <View>
-        <Text style={alias.length > 0 ? styles.item: styles.headerText}>{title}</Text>
+        <Text style={alias.length > 0 ? styles.item : styles.headerText}>{title}</Text>
       </View>
     );
   };
@@ -32,9 +34,9 @@ export default class ListItem extends React.Component<
     return Platform.select({
       android: (
         <TouchableNativeFeedback
-            onPress={this.onPress}
-            background={TouchableNativeFeedback.Ripple('grey')}
-          >
+          onPress={this.onPress}
+          background={TouchableNativeFeedback.Ripple('grey')}
+        >
           {this.renderView()}
         </TouchableNativeFeedback>
       ),
@@ -58,4 +60,4 @@ const styles = StyleSheet.create({
     fontSize: 18,
     height: 44,
   },
-})
+});

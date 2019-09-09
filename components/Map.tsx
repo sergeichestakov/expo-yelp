@@ -1,4 +1,4 @@
-import { Component } from 'React';
+import { Component } from 'react';
 import { Dimensions, StyleSheet, View } from 'react-native';
 import MapView, { Marker } from 'react-native-maps';
 
@@ -19,7 +19,7 @@ export default class Map extends Component<
 
     this.state = {
       isMapReady: false,
-    }
+    };
   }
 
   onMapLayout = () => {
@@ -42,17 +42,17 @@ export default class Map extends Component<
               description={`${result.rating} Stars from ${result.review_count} Reviews`}
             />
           ))}
-        </ MapView>
+        </MapView>
       </View>
-      
-    )
+
+    );
   }
-};
+}
 
 const styles = StyleSheet.create({
   map: {
     flex: 1,
-    width: width,
-    height: height,
+    width,
+    height,
   },
 });
