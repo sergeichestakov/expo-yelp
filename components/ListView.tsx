@@ -62,8 +62,7 @@ export default class ListView extends React.Component<{ results: Business[] }, {
             {result.location.address1}, {result.location.city}
           </Text>
           <Text style={{ marginBottom: 10 }}>
-            {(result.distance / 1000).toFixed(1)}
-            {' '} km away
+            {(result.distance / 1000).toFixed(1)} km away
           </Text>
         </Card>
       );
