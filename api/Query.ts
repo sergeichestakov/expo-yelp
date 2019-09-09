@@ -1,7 +1,7 @@
 import { gql } from 'apollo-boost';
 
 export const QUERY_CATEGORIES = gql`{
-  categories {
+  categories(country: "US", locale: "en_US") {
     category {
       alias
       title

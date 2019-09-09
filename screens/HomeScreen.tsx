@@ -42,6 +42,7 @@ export default class HomeScreen extends React.Component<
         authorization: `Bearer ${YELP_API_KEY}`,
       },
     });
+
     this.state = {
       client,
       search: '',
@@ -84,7 +85,8 @@ export default class HomeScreen extends React.Component<
         const categories = results.data.categories.category;
 
         this.setState({ categories: this.state.categories.concat(categories) });
-      });
+      })
+      .catch(error => console.log("Whoops something went wrong: ", error));
   }
 
   updateSearch = (search: string) => {
@@ -108,6 +110,7 @@ export default class HomeScreen extends React.Component<
 
   renderItem(item: Category) {
     const { client, location, coordinates } = this.state;
+
     return (
       <ListItem
         alias={item.alias}
