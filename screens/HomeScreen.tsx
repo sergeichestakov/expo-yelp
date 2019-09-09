@@ -94,28 +94,32 @@ export default class HomeScreen extends React.Component<
   };
 
   search = (value: string) => {
-    this.setState({ search: '', location: '' });
     const { client, location, coordinates } = this.state;
-    this.props.navigation.navigate('Search', {
-      client, value, location, coordinates,
-    });
+
+    if (value) {
+      this.setState({ search: '', location: '' });
+      this.props.navigation.navigate('Search', {
+        client, value, location, coordinates,
+      });
+    }
   };
 
-  renderItem(item: Category, client: ApolloClient<unknown>) {
+  renderItem(item: Category) {
+    const { client, location, coordinates } = this.state;
     return (
       <ListItem
         alias={item.alias}
         client={client}
+        coordinates={coordinates}
         title={item.title}
+        location={location}
         navigation={this.props.navigation}
       />
     );
   }
 
   render() {
-    const {
-      search, categories, client, location,
-    } = this.state;
+    const { search, categories, location } = this.state;
 
     return (
       <View>
@@ -146,7 +150,7 @@ export default class HomeScreen extends React.Component<
         <FlatList
           data={categories}
           keyExtractor={(_, index) => index.toString()}
-          renderItem={({ item }) => this.renderItem(item, client)}
+          renderItem={({ item }) => this.renderItem(item)}
           stickyHeaderIndices={[0, POPULAR_CATEGORIES.length - 1]}
         />
       </View>

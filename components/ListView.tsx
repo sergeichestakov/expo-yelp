@@ -1,12 +1,10 @@
-import { Component } from 'react';
-import {
-  Image, Text, ScrollView, StyleSheet, View,
-} from 'react-native';
+import React from 'react';
+import { Image, Text, ScrollView, StyleSheet, View } from 'react-native';
 import { Card, Icon } from 'react-native-elements';
 
 import { Business } from '../api/Types';
 
-export default class ListView extends Component<{ results: Business[] }, {}> {
+export default class ListView extends React.Component<{ results: Business[] }, {}> {
   constructor(props) {
     super(props);
   }

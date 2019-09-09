@@ -6,18 +6,29 @@ import ApolloClient from 'apollo-boost';
 import { NavigationScreenProp } from 'react-navigation';
 
 import { COLORS } from '../api/Constants';
+import { Coordinates } from '../api/Types';
 
 export default class ListItem extends React.Component<
   { // props
     alias: string,
     title: string,
+    location: string,
+    coordinates: Coordinates,
     client: ApolloClient<unknown>,
     navigation: NavigationScreenProp<any, any>
   }> {
   onPress = () => {
-    const { alias, client, title } = this.props;
+    const {
+      alias, client, title, coordinates, location,
+    } = this.props;
     if (alias) {
-      this.props.navigation.navigate('Search', { category: alias, client, categoryTitle: title });
+      this.props.navigation.navigate('Search', {
+        category: alias,
+        categoryTitle: title,
+        coordinates,
+        location,
+        client,
+      });
     }
   };
 

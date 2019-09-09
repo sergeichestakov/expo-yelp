@@ -1,4 +1,4 @@
-import { Component } from 'react';
+import React from 'react';
 import { Dimensions, StyleSheet, View } from 'react-native';
 import MapView, { Marker } from 'react-native-maps';
 
@@ -6,7 +6,7 @@ import { Business, Region } from '../api/Types';
 
 const { width, height } = Dimensions.get('window');
 
-export default class Map extends Component<
+export default class Map extends React.Component<
   { // props
     region: Region,
     results: Business[],
@@ -28,11 +28,13 @@ export default class Map extends Component<
 
   render() {
     const { results, region } = this.props;
+
     return (
       <View style={styles.map}>
         <MapView
           region={region}
           onLayout={this.onMapLayout}
+          style={styles.map}
         >
           {this.state.isMapReady && results.map((result, index) => (
             <Marker

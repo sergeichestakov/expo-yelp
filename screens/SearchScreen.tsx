@@ -1,7 +1,5 @@
 import React from 'react';
-import {
-  ActivityIndicator, StyleSheet, Text, View, Button, Dimensions,
-} from 'react-native';
+import { ActivityIndicator, StyleSheet, Text, View, Button } from 'react-native';
 import { NavigationScreenProp } from 'react-navigation';
 import ApolloClient from 'apollo-boost';
 
@@ -9,9 +7,7 @@ import Map from '../components/Map';
 import ListView from '../components/ListView';
 import { COLORS, DEFAULT_DELTA } from '../api/Constants';
 import { QUERY_BUSINESSES_BY_TERM, QUERY_BUSINESSES_BY_CATEGORY } from '../api/Query';
-import {
-  Business, Coordinates, Region, ViewType,
-} from '../api/Types';
+import { Business, Coordinates, Region, ViewType } from '../api/Types';
 
 export default class SearchScreen extends React.Component<
   { // props
@@ -59,16 +55,20 @@ export default class SearchScreen extends React.Component<
 
     const { longitude, latitude } : Coordinates = navigation.getParam('coordinates');
     const location: string = navigation.getParam('location', '');
-    const category: string | null = navigation.getParam('category', null);
+    const categories: string | null = navigation.getParam('category', null);
     const client: ApolloClient<unknown> = navigation.getParam('client');
     const term: string = navigation.getParam('value');
 
     this.setState({ region: { longitude, latitude, ...DEFAULT_DELTA } });
 
-    const query = category === null ? QUERY_BUSINESSES_BY_TERM : QUERY_BUSINESSES_BY_CATEGORY;
-    const variables = {
+    const query = categories === null ? QUERY_BUSINESSES_BY_TERM : QUERY_BUSINESSES_BY_CATEGORY;
+    const variables = location.length ? { // Use user inputted location
       term,
+      categories,
       location,
+    } : { // Use current lat/lng
+      term,
+      categories,
       longitude,
       latitude,
     };
