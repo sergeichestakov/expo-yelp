@@ -1,5 +1,5 @@
 import React from 'react';
-import { ActivityIndicator, StyleSheet, View, FlatList } from 'react-native';
+import { ActivityIndicator, StyleSheet, View, Text, FlatList } from 'react-native';
 import { NavigationScreenProp } from 'react-navigation';
 import { SearchBar } from 'react-native-elements';
 import { YELP_API_KEY } from 'react-native-dotenv';
@@ -18,6 +18,7 @@ export default class HomeScreen extends React.Component<
     client: ApolloClient<unknown>,
     search: string,
     loading: boolean,
+    error: boolean,
     location: string,
     coordinates: Coordinates,
     categories: Category[]
@@ -48,6 +49,7 @@ export default class HomeScreen extends React.Component<
       search: '',
       location: '',
       loading: true,
+      error: false,
       coordinates: null,
       categories: POPULAR_CATEGORIES,
     };
@@ -84,9 +86,12 @@ export default class HomeScreen extends React.Component<
       .then((results) => {
         const categories = results.data.categories.category;
 
-        this.setState({ categories: this.state.categories.concat(categories) });
+        this.setState({ categories: this.state.categories.concat(categories), error: false });
       })
-      .catch(error => console.log("Whoops something went wrong: ", error));
+      .catch(error => {
+        console.log("Whoops something went wrong: ", error);
+        this.setState({ error: true });
+      });
   }
 
   updateSearch = (search: string) => {
@@ -123,12 +128,21 @@ export default class HomeScreen extends React.Component<
     );
   }
 
-  renderListOrLoading() {
-    const { loading, categories } = this.state;
+  renderCategoriesOrLoading() {
+    const { loading, categories, error } = this.state;
     if (loading) {
       return (
         <View style={{ top: 100 }}>
           <ActivityIndicator size="large" color={COLORS.red} />
+        </View>
+      )
+    }
+
+    if (error) {
+      return (
+        <View style={{ top: 5 }}>
+          <Text style={{ fontSize: 20, fontWeight: 'bold' }}>Whoops something went wrong.</Text>
+          <Text>Please check your network connection and try again later.</Text>
         </View>
       )
     }
@@ -172,7 +186,7 @@ export default class HomeScreen extends React.Component<
             value={location}
           />
         </View>
-        {this.renderListOrLoading()}
+        {this.renderCategoriesOrLoading()}
       </View>
     );
   }
