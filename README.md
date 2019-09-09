@@ -2,7 +2,7 @@
 
 Minimal Yelp Client which leverages the Yelp GraphQL API.
 
-Features:
+## Features
 - Search for businesses based on a term or category
 - View points of interest as a list or on a map
 - See rating, number of reviews, address, and distance from current location for each business
@@ -17,6 +17,7 @@ yarn
 ```
 
 2. Configure API Key
+
 Make sure you get an API Key from Yelp's [Developer Page](https://www.yelp.com/developers/v3/manage_app)
 and opt in to the Developer Beta (this is needed to use the GraphQL API).
 
