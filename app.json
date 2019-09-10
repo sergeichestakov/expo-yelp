@@ -10,6 +10,7 @@
       "android",
       "web"
     ],
+    "githubUrl": "https://github.com/sergeichestakov/expo-yelp",
     "version": "1.0.0",
     "orientation": "portrait",
     "icon": "./assets/yelp.png",
