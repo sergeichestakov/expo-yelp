@@ -41,6 +41,7 @@ export default class HomeScreen extends React.Component<
       uri: API_ENDPOINT,
       headers: {
         authorization: `Bearer ${YELP_API_KEY}`,
+        'Accept-Language': 'en_US',
       },
     });
 
