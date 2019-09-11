@@ -1,5 +1,5 @@
 import React from 'react';
-import { ActivityIndicator, StyleSheet, Text, View, Button } from 'react-native';
+import { ActivityIndicator, StyleSheet, Platform, Text, View, Button } from 'react-native';
 import { NavigationScreenProp } from 'react-navigation';
 import ApolloClient from 'apollo-boost';
 
@@ -24,7 +24,7 @@ export default class SearchScreen extends React.Component<
       headerTitle: <Text style={styles.headerTitle}>{title}</Text>,
       headerStyle: {
         backgroundColor: COLORS.red,
-        color: 'white',
+        color: COLORS.white,
       },
       headerTintColor: '#fff',
 
@@ -33,7 +33,7 @@ export default class SearchScreen extends React.Component<
           <Button
             onPress={navigation.getParam('switchView')}
             title={navigation.getParam('buttonTitle', ViewType.MAP)}
-            color={COLORS.red}
+            color={Platform.OS === 'android' ? COLORS.red : COLORS.white}
           />
         </View>
       ),
@@ -124,7 +124,7 @@ export default class SearchScreen extends React.Component<
 
 const styles = StyleSheet.create({
   headerTitle: {
-    color: 'white',
+    color: COLORS.white,
     fontSize: 18,
   },
 });

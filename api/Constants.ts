@@ -4,6 +4,7 @@ export const COLORS = {
   red: '#d32323',
   grey: '#919191',
   lightgrey: '#cccccc',
+  white: '#fff',
 };
 
 export const DEFAULT_DELTA = {
