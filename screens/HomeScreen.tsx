@@ -56,7 +56,7 @@ export default class HomeScreen extends React.Component<
     };
   }
 
-  async componentWillMount() {
+  async componentDidMount() {
     this.getAllCategories();
 
     const coordinates = await this.getCurrentPosition();

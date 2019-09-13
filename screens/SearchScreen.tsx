@@ -50,8 +50,10 @@ export default class SearchScreen extends React.Component<
     };
   }
 
-  async componentWillMount() {
+  async componentDidMount() {
     const { navigation } = this.props;
+
+    navigation.setParams({ switchView: this.switchView, buttonTitle: ViewType.MAP });
 
     const { longitude, latitude } : Coordinates = navigation.getParam('coordinates');
     const location: string = navigation.getParam('location', '');
@@ -85,12 +87,6 @@ export default class SearchScreen extends React.Component<
           this.setState({ region: { latitude, longitude, ...DEFAULT_DELTA } });
         }
       });
-  }
-
-  componentDidMount() {
-    const { navigation } = this.props;
-
-    navigation.setParams({ switchView: this.switchView, buttonTitle: ViewType.MAP });
   }
 
   switchView = () => {
