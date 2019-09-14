@@ -7,9 +7,10 @@ import { QUERY_CATEGORIES } from '../api/Query';
 import { COLORS, POPULAR_CATEGORIES } from '../api/Constants';
 
 const CategoriesList = (props) => {
+  const { coordinates, location, navigation } = props;
   const { error, data, loading } = useQuery(QUERY_CATEGORIES);
 
-  if (loading) {
+  if (loading || !coordinates) {
     return (
       <View style={{ top: 100 }}>
         <ActivityIndicator size="large" color={COLORS.red} />
@@ -27,7 +28,6 @@ const CategoriesList = (props) => {
   }
 
   const categories = POPULAR_CATEGORIES.concat(data.categories.category);
-  const { coordinates, location, navigation } = props;
   return (
     <FlatList
       data={categories}

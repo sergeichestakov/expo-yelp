@@ -13,7 +13,6 @@ export default class HomeScreen extends React.Component<
   },
   { // state
     search: string,
-    loading: boolean,
     error: boolean,
     location: string,
     coordinates: Coordinates,
@@ -36,7 +35,6 @@ export default class HomeScreen extends React.Component<
     this.state = {
       search: '',
       location: '',
-      loading: true,
       error: false,
       coordinates: null,
       categories: POPULAR_CATEGORIES,
@@ -45,7 +43,7 @@ export default class HomeScreen extends React.Component<
 
   async componentDidMount() {
     const coordinates = await this.getCurrentPosition();
-    this.setState({ coordinates, loading: false });
+    this.setState({ coordinates });
   }
 
   async getCurrentPosition(): Promise<Coordinates> {
@@ -116,7 +114,7 @@ export default class HomeScreen extends React.Component<
           coordinates={coordinates}
           location={location}
           navigation={this.props.navigation}
-          />
+        />
       </View>
     );
   }
