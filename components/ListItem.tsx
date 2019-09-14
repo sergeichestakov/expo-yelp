@@ -2,7 +2,6 @@ import React from 'react';
 import {
   Text, View, Platform, StyleSheet, TouchableNativeFeedback, TouchableHighlight,
 } from 'react-native';
-import ApolloClient from 'apollo-boost';
 import { NavigationScreenProp } from 'react-navigation';
 
 import { COLORS } from '../api/Constants';
@@ -14,12 +13,11 @@ export default class ListItem extends React.Component<
     title: string,
     location: string,
     coordinates: Coordinates,
-    client: ApolloClient<unknown>,
     navigation: NavigationScreenProp<any, any>
   }> {
   onPress = () => {
     const {
-      alias, client, title, coordinates, location,
+      alias, title, coordinates, location,
     } = this.props;
     if (alias) {
       this.props.navigation.navigate('Search', {
@@ -27,7 +25,6 @@ export default class ListItem extends React.Component<
         categoryTitle: title,
         coordinates,
         location,
-        client,
       });
     }
   };

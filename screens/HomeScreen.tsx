@@ -1,13 +1,10 @@
 import React from 'react';
-import { ActivityIndicator, StyleSheet, View, Text, FlatList } from 'react-native';
+import { StyleSheet, View } from 'react-native';
 import { NavigationScreenProp } from 'react-navigation';
 import { SearchBar } from 'react-native-elements';
-import { YELP_API_KEY } from 'react-native-dotenv';
-import ApolloClient from 'apollo-boost';
 
-import ListItem from '../components/ListItem';
-import { QUERY_CATEGORIES } from '../api/Query';
-import { API_ENDPOINT, COLORS, POPULAR_CATEGORIES } from '../api/Constants';
+import CategoriesList from '../components/CategoriesList';
+import { COLORS, POPULAR_CATEGORIES } from '../api/Constants';
 import { Category, Coordinates } from '../api/Types';
 
 export default class HomeScreen extends React.Component<
@@ -15,7 +12,6 @@ export default class HomeScreen extends React.Component<
     navigation: NavigationScreenProp<any, any>
   },
   { // state
-    client: ApolloClient<unknown>,
     search: string,
     loading: boolean,
     error: boolean,
@@ -37,16 +33,7 @@ export default class HomeScreen extends React.Component<
   constructor(props) {
     super(props);
 
-    const client = new ApolloClient({
-      uri: API_ENDPOINT,
-      headers: {
-        authorization: `Bearer ${YELP_API_KEY}`,
-        'Accept-Language': 'en_US',
-      },
-    });
-
     this.state = {
-      client,
       search: '',
       location: '',
       loading: true,
@@ -57,8 +44,6 @@ export default class HomeScreen extends React.Component<
   }
 
   async componentDidMount() {
-    this.getAllCategories();
-
     const coordinates = await this.getCurrentPosition();
     this.setState({ coordinates, loading: false });
   }
@@ -79,22 +64,6 @@ export default class HomeScreen extends React.Component<
     });
   }
 
-  getAllCategories = () => {
-    const { client } = this.state;
-
-    client
-      .query({ query: QUERY_CATEGORIES })
-      .then((results) => {
-        const categories = results.data.categories.category;
-
-        this.setState({ categories: this.state.categories.concat(categories), error: false });
-      })
-      .catch(error => {
-        console.log("Whoops something went wrong: ", error);
-        this.setState({ error: true });
-      });
-  }
-
   updateSearch = (search: string) => {
     this.setState({ search });
   };
@@ -104,62 +73,18 @@ export default class HomeScreen extends React.Component<
   };
 
   search = (value: string) => {
-    const { client, location, coordinates } = this.state;
+    const { location, coordinates } = this.state;
 
     if (value) {
       this.setState({ search: '', location: '' });
       this.props.navigation.navigate('Search', {
-        client, value, location, coordinates,
+        value, location, coordinates,
       });
     }
   };
 
-  renderItem(item: Category) {
-    const { client, location, coordinates } = this.state;
-
-    return (
-      <ListItem
-        alias={item.alias}
-        client={client}
-        coordinates={coordinates}
-        title={item.title}
-        location={location}
-        navigation={this.props.navigation}
-      />
-    );
-  }
-
-  renderCategoriesOrLoading() {
-    const { loading, categories, error } = this.state;
-    if (loading) {
-      return (
-        <View style={{ top: 100 }}>
-          <ActivityIndicator size="large" color={COLORS.red} />
-        </View>
-      )
-    }
-
-    if (error) {
-      return (
-        <View style={{ top: 5 }}>
-          <Text style={{ fontSize: 20, fontWeight: 'bold' }}>Whoops something went wrong.</Text>
-          <Text>Please check your network connection and try again later.</Text>
-        </View>
-      )
-    }
-
-    return (
-      <FlatList
-          data={categories}
-          keyExtractor={(_, index) => index.toString()}
-          renderItem={({ item }) => this.renderItem(item)}
-          stickyHeaderIndices={[0, POPULAR_CATEGORIES.length - 1]}
-        />
-    )
-  }
-
   render() {
-    const { search, location } = this.state;
+    const { search, location, coordinates } = this.state;
 
     return (
       <View>
@@ -187,7 +112,11 @@ export default class HomeScreen extends React.Component<
             value={location}
           />
         </View>
-        {this.renderCategoriesOrLoading()}
+        <CategoriesList
+          coordinates={coordinates}
+          location={location}
+          navigation={this.props.navigation}
+          />
       </View>
     );
   }

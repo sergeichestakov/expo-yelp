@@ -1,7 +1,7 @@
 import React from 'react';
 import { ActivityIndicator, StyleSheet, Platform, Text, View, Button } from 'react-native';
 import { NavigationScreenProp } from 'react-navigation';
-import ApolloClient from 'apollo-boost';
+import { useQuery } from '@apollo/react-hooks';
 
 import Map from '../components/Map';
 import ListView from '../components/ListView';
@@ -58,7 +58,6 @@ export default class SearchScreen extends React.Component<
     const { longitude, latitude } : Coordinates = navigation.getParam('coordinates');
     const location: string = navigation.getParam('location', '');
     const categories: string | null = navigation.getParam('category', null);
-    const client: ApolloClient<unknown> = navigation.getParam('client');
     const term: string = navigation.getParam('value');
 
     this.setState({ region: { longitude, latitude, ...DEFAULT_DELTA } });
@@ -74,19 +73,16 @@ export default class SearchScreen extends React.Component<
       latitude,
     };
 
-    client
-      .query({ query, variables })
-      .then((results) => {
-        const businesses = results.data.search.business;
-        this.setState({ results: businesses });
+    const { data } = useQuery(query, { variables });
+    const businesses = data.search.business;
+    this.setState({ results: businesses });
 
-        // If the user inputted the location, center the map around the first result
-        if (location.length) {
-          const { coordinates } = businesses[0];
-          const { latitude, longitude } = coordinates;
-          this.setState({ region: { latitude, longitude, ...DEFAULT_DELTA } });
-        }
-      });
+    // If the user inputted the location, center the map around the first result
+    if (location.length) {
+      const { coordinates } = businesses[0];
+      const { latitude, longitude } = coordinates;
+      this.setState({ region: { latitude, longitude, ...DEFAULT_DELTA } });
+    }
   }
 
   switchView = () => {
